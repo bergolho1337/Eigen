@@ -13,3 +13,12 @@ int main()
   v << 1, 2, 3;
   cout << "m * v =" << endl << m * v << endl;
 }
+
+/*
+  MatrixXd -> Matrix of type double
+  MatrixXf -> Matrix of type float
+  MatrixXi -> Matrix of type int
+  VectorXd -> Vector type double
+  VectorXf -> Vector type float
+  VectorXi -> Vector type int
+*/
