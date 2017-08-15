@@ -114,6 +114,7 @@ void HeatSolver1D::printHeatSolver1D ()
 
 ostream& operator<<(ostream& ost, const HeatSolver1D& h)
 {
+    ost << "nt = " << h.nt << endl;
     ost << "nx = " << h.nx << endl;
     ost << "Alfa = " << h.alfa << endl;
     ost << "L = " << h.L << endl;
