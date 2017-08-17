@@ -1,6 +1,9 @@
 /*
 ------------------------------------------------------------------------------------------------------------
-    
+    Solve the 1 dimension Heat equation on a quadricular plate.
+    - Use Finite Difference Method (Implicit)
+    - Store the matrix related to the linear system on a SparseMatrix structure (Eigen)
+    - First decompose the matrix on LU, after that only change the right-hand-side to solve the system.
 ------------------------------------------------------------------------------------------------------------   
 */
 

@@ -1,7 +1,9 @@
 /*
 ------------------------------------------------------------------------------------------------------------
-    Solve a sparse linear system given by two files representing the sparse matrix (matrix.mtx) and the
-   right-hand-side (rhs.mtx). 
+    - Solve a sparse linear system given by two files representing the sparse matrix (matrix.mtx) and the
+   right-hand-side (rhs.mtx).
+    - The matrix and the RHS are provided using the MatrixMarket format.
+      (More info about this format: http://math.nist.gov/MatrixMarket/formats.html)
 ------------------------------------------------------------------------------------------------------------   
 */
 
