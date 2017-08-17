@@ -15,7 +15,7 @@ typedef SparseMatrix<double> SpMat;
 typedef Triplet<double> T;
 typedef double (*Func) (double,double);
 
-static const int PLOT_STEP = 50;
+static const int PLOT_STEP = 10;
 
 /* Dirichlet Boundary conditions */
 static const double bc_north = 0.0;
@@ -37,12 +37,13 @@ public:
     void solve ();
     void computeCoeff (double &a, double &b, double &c);
     void buildMatrix (SpMat &A);
+    void buildRHS (VectorXd &b, double c);
     void setInitialCondition (VectorXd &b);
     void insertCoefficient (int i, int j, double val, vector<T> &coeff);
     void insertBC_Coefficient (vector<T> &coeff);
     void printHeatSolver2D ();
     void writeSolution (int iter, VectorXd x);
-    void writeVTK (const vector<VectorXd> sol);
+    void writeVTK (int k, const VectorXd x);
     
     friend ostream& operator<<(ostream&, const HeatSolver2D&);
 };

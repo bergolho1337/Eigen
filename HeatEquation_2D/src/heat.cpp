@@ -1,8 +1,9 @@
 #include "../include/heat.h"
 
-double initialCondition (double x, double L)
+double initialCondition (double x, double y)
 {
-    return 0;
+    if (x <= 0) return 4;
+    else        return 0;
 }
 
 HeatSolver2D::HeatSolver2D (int argc, char *argv[])
@@ -24,34 +25,27 @@ void HeatSolver2D::solve ()
 {
     SpMat A((nx+1)*(ny+1),(nx+1)*(ny+1));
     buildMatrix(A);
-    cout << A << endl;
+    //cout << A << endl;
     
-    /*
-    VectorXd x(nx+1);
+    VectorXd x((nx+1)*(ny+1));
     setInitialCondition(x);
     //cout << x << endl;
 
-    VectorXd b(nx+1);
+    VectorXd b((nx+1)*(ny+1));
     b = x;
 
     SparseLU<SpMat> sparseSolver(A);
-    #ifdef VTK
-    vector< VectorXd > solution;
-    #endif
 
-    double d = 1 / dt;
+    double c = 1 / dt;
     // Time loop
     for (int k = 0; k <= nt; k++)
     {
-        if (k % PLOT_STEP == 0) writeSolution(k,x);
         #ifdef VTK
-        solution.push_back(x);
+        if (k % PLOT_STEP == 0) writeVTK(k,x);
         #endif
 
         // Calculate RHS and set the boundary conditions
-        b(0) = bc_west;
-        b(nx) = bc_east;
-        b *= d;
+        buildRHS(b,c);
 
         // Solve the current timestep
         x = sparseSolver.solve(b);
@@ -59,19 +53,43 @@ void HeatSolver2D::solve ()
         // Advance to next timestep
         b = x;
     }
+}
 
-    #ifdef VTK
-    writeVTK(solution);
-    #endif
-    */
+void HeatSolver2D::buildRHS (VectorXd &b, double c)
+{
+    b *= c;
+
+    // Set north BC
+    for (int i = 1; i < nx; i++) b(i) = bc_north;
+    // Set south BC
+    for (int i = 1; i < nx; i++) b(nx*(ny+1)+i) = bc_south;
+    // Set east BC
+    for (int i = 1; i < nx; i++) b(i*(ny+1)+nx) = bc_east;
+    // Set west BC
+    for (int i = 1; i < nx; i++) b(i*(ny+1)) = bc_west;
+    // Set northwest BC
+    b(0) = bc_north + bc_west;
+    // Set northeast BC
+    b(nx) = bc_north + bc_east;
+    // Set southwest BC
+    b(nx*(ny+1)) = bc_south + bc_west;
+    // Set southeast BC
+    b(nx*(ny+1)+nx) = bc_south + bc_east;
+
 }
 
 void HeatSolver2D::setInitialCondition (VectorXd &b)
 {
     for (int i = 0; i <= nx; i++)
     {
-        double x = i*dx;
-        b(i) = ic(x,L);
+        double y = i*dy;
+        for (int j = 0; j <= ny; j++)
+        {
+            int k = i * (ny+1) + j;
+            double x = j*dx;
+            b(k) = ic(x,y);
+        }
+        
     }
 }
 
@@ -183,22 +201,35 @@ void HeatSolver2D::writeSolution (int iter, VectorXd x)
     out.close();
 }
 
-void HeatSolver2D::writeVTK (const vector<VectorXd> sol)
+void HeatSolver2D::writeVTK (int k, const VectorXd x)
 {
-    ofstream out("VTK/solution.vtk");
+    ostringstream ss;
+    ss << "VTK/solution" << k << ".vtk";
+    string filename(ss.str());
+    ofstream out(filename.c_str());
     out << "# vtk DataFile Version 3.0" << endl;
     out << "Heat Equation 2D" << endl;
     out << "ASCII" << endl;
-    out << "DATASET STRUCTURED_POINTS" << endl;
-    out << "DIMENSIONS 2 " << (nx+1) << " " << (nt+1) << endl;
-    out << "ORIGIN 0 0 0" << endl;
-    out << "SPACING 1 1 1" << endl;
-    out << "POINT_DATA " << (nt+1)*(nx+1)*2 << endl;
-    out << "SCALARS solution float" << endl;
+    out << "DATASET POLYDATA" << endl;
+    out << "POINTS " << (ny+1)*(nx+1) << " float" << endl;
+    for (int i = 0; i <= ny; i++)
+    {
+        double y = i*dy;
+        for (int j = 0; j <= nx; j++)
+        {
+            double x = j*dx;
+            out << x << " " << y << " 0" << endl;
+        }
+    }
+    out << "VERTICES " << (ny+1)*(nx+1) << " " << (ny+1)*(nx+1)*2 << endl;
+    for (int i = 0; i < (ny+1)*(nx+1); i++)
+        out << "1 " << i << endl;
+    out << "POINT_DATA " << (ny+1)*(nx+1) << endl;
+    out << "SCALARS solution float 1" << endl;
     out << "LOOKUP_TABLE default" << endl;
-    for (int k = 0; k <= nt; k++)
-        for (int i = 0; i <= nx; i++)
-            out << sol[k][i] << " " << sol[k][i] << endl;
+    for (int i = 0; i <= ny; i++)
+        for (int j = 0; j <= nx; j++)
+            out << x(j*ny+i) << endl;
     out.close();
 }
 

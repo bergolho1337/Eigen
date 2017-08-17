@@ -21,7 +21,7 @@ $(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 
 clean:
 	rm -f $(OBJECT_DIR)/*.o $(PROGRAM_NAME)
-	rm -f Data/*.dat; rm -f Data/*.pdf
+	rm -f VTK/*
 
 plot:
 	cd Data; python plot.py
