@@ -1,8 +1,9 @@
 #include "../include/heat.h"
 
-double initialCondition (double x, double y)
+double initialCondition (int x, int y)
 {
-    if (x <= 0) return 4;
+    //printf("%d %d\n",x,y);
+    if (y == 0) return 4;
     else        return 0;
 }
 
@@ -23,6 +24,7 @@ HeatSolver2D::HeatSolver2D (int argc, char *argv[])
 
 void HeatSolver2D::solve ()
 {
+    printf("[!] Solving Heat equation 2D ...\n");
     SpMat A((nx+1)*(ny+1),(nx+1)*(ny+1));
     buildMatrix(A);
     //cout << A << endl;
@@ -80,14 +82,12 @@ void HeatSolver2D::buildRHS (VectorXd &b, double c)
 
 void HeatSolver2D::setInitialCondition (VectorXd &b)
 {
-    for (int i = 0; i <= nx; i++)
+    for (int i = 0; i <= ny; i++)
     {
-        double y = i*dy;
-        for (int j = 0; j <= ny; j++)
+        for (int j = 0; j <= nx; j++)
         {
             int k = i * (ny+1) + j;
-            double x = j*dx;
-            b(k) = ic(x,y);
+            b(k) = ic(i,j);
         }
         
     }
@@ -168,6 +168,7 @@ void HeatSolver2D::printHeatSolver2D ()
 
 ostream& operator<<(ostream& ost, const HeatSolver2D& h)
 {
+    ost << "===== PARAMETERS ======" << endl;
     ost << "nt = " << h.nt << endl;
     ost << "nx = " << h.nx << endl;
     ost << "ny = " << h.ny << endl;
@@ -218,7 +219,7 @@ void HeatSolver2D::writeVTK (int k, const VectorXd x)
         for (int j = 0; j <= nx; j++)
         {
             double x = j*dx;
-            out << x << " " << y << " 0" << endl;
+            out << y << " " << x << " 0" << endl;
         }
     }
     out << "VERTICES " << (ny+1)*(nx+1) << " " << (ny+1)*(nx+1)*2 << endl;
@@ -229,7 +230,7 @@ void HeatSolver2D::writeVTK (int k, const VectorXd x)
     out << "LOOKUP_TABLE default" << endl;
     for (int i = 0; i <= ny; i++)
         for (int j = 0; j <= nx; j++)
-            out << x(j*ny+i) << endl;
+            out << x(i*(ny+1)+j) << endl;
     out.close();
 }
 

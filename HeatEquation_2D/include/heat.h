@@ -13,7 +13,7 @@ using namespace Eigen;
 
 typedef SparseMatrix<double> SpMat;
 typedef Triplet<double> T;
-typedef double (*Func) (double,double);
+typedef double (*Func) (int,int);
 
 static const int PLOT_STEP = 10;
 
